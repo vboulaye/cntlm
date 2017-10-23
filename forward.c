@@ -685,7 +685,9 @@ shortcut:
 			 * This way, we also tell our caller that proxy keep-alive is impossible.
 			 */
 			if (loop == 1) {
-				proxy_alive = hlist_subcmp(data[1]->headers, "Proxy-Connection", "keep-alive")
+				// VBO keep the connection open on Connection keep-alive : Friefox + cntlm proxies do not play nice with Proxy-Connection
+				// Firefox does not send it and even when added in the auth request, the proxy does not set it in the reply. Works fine with chrome.
+				proxy_alive = (hlist_subcmp(data[1]->headers, "Proxy-Connection", "keep-alive") || hlist_subcmp(data[1]->headers, "Connection", "keep-alive"))
 					&& data[0]->http_version >= 11;
 				if (proxy_alive) {
 					data[1]->headers = hlist_mod(data[1]->headers, "Proxy-Connection", "keep-alive", 1);
