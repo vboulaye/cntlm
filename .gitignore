@@ -1,0 +1,3 @@
+*.o
+config/
+configure-stamp
